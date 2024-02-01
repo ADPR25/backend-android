@@ -20,20 +20,23 @@ export class PrestamosService {
     async crearprestamo(prestamo) {
         prestamo.fechaInicio = new Date(prestamo.fechaInicio);
         prestamo.fechaFinal = new Date(prestamo.fechaFinal);
-    
+
+        // Asignar el valor fijo de 1 al estado
+        prestamo.estado_prestamo = { id: 1 };
+
         var r = await this.prestamostabla.insert(prestamo);
         var prestar = [];
         var cantidadTotal = [];
-    
+
         for (let data of prestamo.detalle) {
             let equipos = await this.equipoService.obtenerBuenos(data.tipo, 1);
             let rDetalle;
-    
+
             var contador = 0;
             for (let d of equipos) {
                 if (contador < data.cantidad) {
                     rDetalle = await this.detalleService.obtener(d.serial, prestamo.fechaInicio, prestamo.fechaFinal);
-    
+
                     if (rDetalle.length == 0) {
                         prestar.push(d);
                         contador++;
@@ -42,30 +45,31 @@ export class PrestamosService {
                     break;
                 }
             }
-    
+
             if (contador < data.cantidad) {
                 cantidadTotal.push({ contador, equipos });
             }
         }
-    
+
         var id = r.identifiers[0].id;
-    
+
         if (prestar.length == 0) {
-            await this.eliminarPrestamo(id); // Usar "await" para asegurar que la eliminación se haya completado antes de continuar
+            await this.eliminarPrestamo(id);
             return "vacio";
         }
-    
+
         for (let data of prestar) {
-            let detalle = new detalle_prestamoDto(id, data.serial, prestamo.fechaInicio, prestamo.fechaFinal); // Actualiza la fechaFinal con prestamo.fechaFinal
+            let detalle = new detalle_prestamoDto(id, data.serial, prestamo.fechaInicio, prestamo.fechaFinal);
             var rDetalle = await this.detalle.insert(detalle);
-        }               
-    
+        }
+
         if (cantidadTotal.length == 0) {
             return "prestar";
         } else {
             return { id, cantidadTotal };
         }
     }
+
     
 
     obtener() {

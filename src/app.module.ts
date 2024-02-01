@@ -27,7 +27,7 @@ import { novedades } from './novedades/entity/novedades.entity';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'root',
+      password: 'root1234',
       database: 'biblioteca',
       entities: [estado_prestamo, usuario,prestamos,estado_equipos,equipo,tipo_equipo,rol,detalle_prestamo,novedades],
       synchronize: true,
